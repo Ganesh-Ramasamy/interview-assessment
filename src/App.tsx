@@ -25,6 +25,9 @@ function App() {
   const [items, setItems] = useState(initialItems)
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All')
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
+  const [newProject, setNewProject] = useState('Web console')
 
   const visibleItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -77,7 +80,7 @@ function App() {
             <h1>Work queue</h1>
             <p className="subtitle">A clear view of what the team is moving forward.</p>
           </div>
-          <button className="primary-button" type="button" disabled title="Available in the proposed change">
+          <button className="primary-button" type="button" onClick={() => setIsCreateDialogOpen(true)}>
             <span aria-hidden="true">+</span> New work item
           </button>
         </section>
@@ -184,6 +187,54 @@ function App() {
             <span className="sync-status"><span /> All changes saved</span>
           </footer>
         </section>
+        {isCreateDialogOpen && (
+          <div className="dialog-backdrop">
+            <section className="create-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+              <div className="dialog-heading">
+                <div>
+                  <p className="eyebrow">TEAM WORK QUEUE</p>
+                  <h2 id="dialog-title">New work item</h2>
+                </div>
+                <button className="dialog-close" type="button" aria-label="Close dialog" onClick={() => setIsCreateDialogOpen(false)}>×</button>
+              </div>
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault()
+                  setItems((currentItems) => [...currentItems, {
+                    id: Date.now(),
+                    title: newTitle,
+                    project: newProject,
+                    owner: 'Sam Rivera',
+                    priority: 'Medium',
+                    status: 'Open',
+                    updated: 'Just now',
+                  }])
+                  setNewTitle('')
+                  setNewProject('Web console')
+                  setIsCreateDialogOpen(false)
+                }}
+              >
+                <label className="form-field">
+                  <span>Title</span>
+                  <input autoFocus required value={newTitle} onChange={(event) => setNewTitle(event.target.value)} placeholder="What needs to get done?" />
+                </label>
+                <label className="form-field">
+                  <span>Project</span>
+                  <select value={newProject} onChange={(event) => setNewProject(event.target.value)}>
+                    <option>Web console</option>
+                    <option>Developer API</option>
+                    <option>Identity platform</option>
+                    <option>Search service</option>
+                  </select>
+                </label>
+                <div className="dialog-actions">
+                  <button className="secondary-button" type="button" onClick={() => setIsCreateDialogOpen(false)}>Cancel</button>
+                  <button className="primary-button" type="submit">Create item</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        )}
       </div>
       <footer className="app-footer"><span>WAYPOINT</span><span>Internal tools · v1.8.2</span></footer>
     </main>
